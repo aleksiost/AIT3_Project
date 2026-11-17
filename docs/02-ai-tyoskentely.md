@@ -40,6 +40,8 @@ Koska teen projektin yksin ilman agenttista ympäristöä, prosessini on seuraav
 
 ## 4. Esimerkki AI-tuotoksen tarkistamisesta ja korjaamisesta
 
+----------------------------------------------------------------------------------------------------------------------------
+
 # 2. Vaihe 2 Prompt
 
 > Vaihe 1 on valmis ja käyttöliittymän tyylit ovat kunnossa. Siirrytään vaiheeseen 2: NASA NeoWs -rajapinnan datan hakemiseen.
@@ -58,3 +60,19 @@ Koska teen projektin yksin ilman agenttista ympäristöä, prosessini on seuraav
 > Anna minulle app.js-tiedostoon lisättävät uudet osat ja kerro lyhyesti, mistä polusta NeoWs-rajapinnan JSON-vastauksesta löydät nämä asteroidit.
 
 > Huom. Vaihe 2 keskittyy vaatimukseen V2, mutta se myös luo pohjaa vaatimuksille V4 ja V6. 
+
+## Geminin vastaus pyyntöön: "kerro lyhyesti, mistä polusta NeoWs-rajapinnan JSON-vastauksesta löydät nämä asteroidit."
+
+NASA NeoWs API:n feed-päätepiste palauttaa JSON-objektin, jonka ytimessä on avain nimeltä near_earth_objects. Sen alla data on ryhmitelty päivämäärien mukaan (koska rajapinnasta voi hakea kerralla jopa 7 päivän datan).
+
+Oikea polku päivän asteroideihin (taulukkoon) on siis:data.near_earth_objects["YYYY-MM-DD"]
+
+Yksittäisen asteroidin sisällä tiedot on ripoteltu eri objekteihin:
+
+Nimi ja vaarallisuus: Suoraan asteroidiobjektin juuressa (name ja is_potentially_hazardous_asteroid).
+
+Koko: Syvällä estimated_diameter.meters -objektissa.
+
+Etäisyys: close_approach_data -taulukossa (joka sisältää yleensä vain yhden alkion kyseiselle ohitukselle), sieltä polussa [0].miss_distance.kilometers.
+
+---------------------------------------------------------------------------------------------------------------------------
