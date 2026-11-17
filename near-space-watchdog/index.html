@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Near-Space Watchdog | Orbital Telemetry</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Taustan ReactBits-henkinen pisteverkko ja valohehku -->
+  <div class="bg-grid"></div>
+  <div class="ambient-glow"></div>
+
+  <!-- Yläpalkki -->
+  <header class="top-bar">
+    <div class="brand">
+      <span class="status-dot"></span>
+      <h1>NEAR-SPACE WATCHDOG</h1>
+      <span class="badge">LIVE TELEMETRY</span>
+    </div>
+  </header>
+
+  <!-- Päänäkymä: Maapallo keskellä ja kelluva ohjauspaneeli -->
+  <main class="viewport">
+    <!-- Keskellä oleva visualisointialue -->
+    <div class="stage" id="stage">
+      <!-- Canvas lisätään tähän valmiiksi Vaihetta 3 varten -->
+      <canvas id="asteroid-canvas"></canvas>
+
+      <!-- Maapallon kehys -->
+      <div class="earth-wrapper">
+        <div class="loader" id="earth-loader">
+          <div class="spinner"></div>
+          <span>ACQUIRING DSCOVR EPIC SIGNAL...</span>
+        </div>
+        <img id="earth-image" alt="Latest Earth view from DSCOVR EPIC" class="hidden" />
+      </div>
+    </div>
+
+    <!-- Kelluva HUD-ohjauspaneeli (ReactBits-henkinen Spotlight-kortti) -->
+    <aside class="hud-panel" id="hud-panel">
+      <div class="panel-header">
+        <h2>TELEMETRY &amp; CONTROLS</h2>
+        <span class="sub-label">DSCOVR // NEOWS FEED</span>
+      </div>
+
+      <div class="telemetry-grid">
+        <div class="telemetry-item">
+          <span class="label">EARTH IMAGE TIMESTAMP</span>
+          <span class="value" id="epic-timestamp">AWAITING SIGNAL...</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="label">ASTEROID SCAN DATE</span>
+          <span class="value" id="neo-timestamp">STANDBY (PHASE 2)</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="label">DETECTED OBJECTS</span>
+          <span class="value" id="neo-count">--</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Suodatuskytkin -->
+      <div class="control-group">
+        <div class="control-info">
+          <label for="hazard-toggle" class="control-title">Potentially Hazardous Only</label>
+          <span class="control-desc">Highlight PHA-classified near-Earth objects</span>
+        </div>
+        <label class="cyber-switch">
+          <input type="checkbox" id="hazard-toggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="panel-footer">
+        <span id="status-message">Initializing EPIC imagery subsystem...</span>
+      </div>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
