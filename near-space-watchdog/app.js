@@ -1,6 +1,6 @@
 /**
- * Near-Space Watchdog - Phase 1 (Updated)
- * Core UI & NASA EPIC Earth Imagery Integration
+ * Near-Space Watchdog - Phase 1 & 2
+ * Core UI, NASA EPIC Earth Imagery & NASA NeoWs Asteroid Telemetry
  */
 
 const CONFIG = {
@@ -9,7 +9,7 @@ const CONFIG = {
   EPIC_ARCHIVE_BASE: 'https://epic.gsfc.nasa.gov/archive/natural'
 };
 
-// Sovelluksen tila (laajennetaan Vaiheessa 2 ja 3)
+// Sovelluksen tila
 const state = {
   onlyHazardous: false,
   epicData: null
@@ -21,6 +21,8 @@ const elements = {
   earthImage: document.getElementById('earth-image'),
   earthLoader: document.getElementById('earth-loader'),
   epicTimestamp: document.getElementById('epic-timestamp'),
+  neoTimestamp: document.getElementById('neo-timestamp'), // Lisätty Vaihe 2 varten
+  neoCount: document.getElementById('neo-count'),         // Lisätty Vaihe 2 varten
   hazardToggle: document.getElementById('hazard-toggle'),
   statusMessage: document.getElementById('status-message'),
   hudPanel: document.getElementById('hud-panel')
@@ -91,6 +93,59 @@ function useFallbackEarthImage() {
 }
 
 /**
+ * VAIHE 2: Hakee kuluvan päivän asteroidiohitukset NASA NeoWs -rajapinnasta.
+ */
+async function fetchNeoData() {
+  // 1. Luodaan kuluvan päivän päivämäärä muodossa YYYY-MM-DD
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const today = `${year}-${month}-${day}`;
+
+  try {
+    updateStatus('Requesting asteroid telemetry from NASA NeoWs...');
+
+    // 2. Tehdään API-pyyntö kuluvan päivän datalle
+    const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${today}&end_date=${today}&api_key=${CONFIG.API_KEY}`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`NeoWs API responded with status ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // 3. Poimitaan tämän päivän asteroidit JSON-rakenteesta
+    const todaysAsteroids = data.near_earth_objects[today] || [];
+
+    // 4. Päivitetään olemassa oleva HTML-infopaneeli
+    elements.neoTimestamp.textContent = today;
+    elements.neoCount.textContent = `${todaysAsteroids.length} kpl`;
+
+    // 5. Rakennetaan konsoliin tulostettava selkeä taulukko
+    const asteroidTable = todaysAsteroids.map(asteroid => {
+      return {
+        Nimi: asteroid.name,
+        'Koko (max metriä)': Math.round(asteroid.estimated_diameter.meters.estimated_diameter_max),
+        'Ohitusetäisyys (km)': Math.round(asteroid.close_approach_data[0].miss_distance.kilometers),
+        'Vaarallinen (PHA)': asteroid.is_potentially_hazardous_asteroid
+      };
+    });
+
+    // Tulostetaan data selaimen konsoliin kehitystä varten
+    console.log(`Asteroidit (${today}): ${todaysAsteroids.length} kpl`);
+    console.table(asteroidTable);
+    
+    updateStatus('NeoWs telemetry nominal. Ready for Phase 3 visualization.');
+
+  } catch (error) {
+    console.error('NASA NeoWs Error:', error);
+    updateStatus('Error fetching asteroid data. See console for details.');
+  }
+}
+
+/**
  * Päivittää ohjauspaneelin alareunan tilaviestin.
  */
 function updateStatus(message) {
@@ -121,8 +176,9 @@ function initInteractions() {
   });
 }
 
-// Käynnistetään Vaihe 1
+// Käynnistetään Vaihe 1 ja Vaihe 2
 document.addEventListener('DOMContentLoaded', () => {
   initInteractions();
   fetchLatestEarthImage();
+  fetchNeoData();
 });
