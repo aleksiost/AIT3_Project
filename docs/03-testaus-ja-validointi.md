@@ -53,6 +53,43 @@ Tässä vaiheessa testattiin NASA:n NeoWs-rajapinnan kutsumista, datan jäsentä
 * **Johtopäätös:** **Läpäisty.** API-haku, käyttöliittymän tekstien päivitys DOM:iin ja datan muotoilu (parsing) toimivat täydellisesti odotetulla tavalla.
 
 Kuva vaiheesta 2:
+
 <img width="686" height="200" alt="image" src="https://github.com/user-attachments/assets/1e839483-eb9c-4b29-bbf0-c0f594700100" />
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## Vaihe 3: Valopisteiden visualisointi (Canvas) ja päivityslogiikka
+
+Tässä vaiheessa testattiin asteroididatan piirtämistä visuaalisina elementteinä maapallokuvan ympärille (Canvas-elementille) sekä käyttöliittymän suodattimen ja selaimen skaalauksen vaikutusta niihin.
+
+### Testitapaus 3: Asteroidien sijoittelu, piirto ja tilanhallinta (Normaali- ja virhetapaus)
+* **Vaatimukset:** V3 (Visuaalinen esittäminen valopisteinä), V5 (Datan suodatus, osittain)
+* **Lähtötilanne:** Sovellus käynnistetään selaimessa. Rajapinnasta palautuu 8 asteroidia.
+* **Koe:** Tarkistetaan valopisteiden tyyli, lukumäärä ja sijoittelu ruudulla. Kokeillaan muuttaa selaimen ikkunan kokoa ja klikata PHA-suodatinta (Näytä vain vaaralliset) päälle ja pois.
+* **Odotettu tulos:**
+  1. Ruudulle piirtyy tarkalleen rajapinnan ilmoittama määrä (8 kpl) valopisteitä maapallon ympärille siten, että ne ovat kaikki näkyvissä.
+  2. Pisteiden tyyli on asetusten mukainen ja vaaralliset kohteet on värikoodattu erikseen.
+  3. Suodattimen käyttö poistaa ei-vaaralliset kohteet näkyvistä, mutta ei muuta jäljelle jäävien sijaintia.
+  4. Ikkunan koon muuttaminen pitää asteroidit paikoillaan suhteessa maapalloon.
+* **Havaittu tulos (Ensimmäinen ajo):** 
+  Värikoodaus ja valopisteiden visuaalinen tyyli (hohto ja valojana) toimivat erinomaisesti odotusten mukaisesti. 
+  **VIRHE 1 (Sijoittelu):** Kaikki 8 asteroidia eivät näkyneet ruudulla (näkyi vain 4 tai 5), koska niiden satunnainen sijoittelu hajotti osan pisteistä selaimen ikkunan/näytön ulkopuolelle.
+  **VIRHE 2 (Tilanhallinta ja renderöinti):** Asteroidien sijainnit vaihtuivat ja arvottiin täysin satunnaisesti uudelleen aina, kun selaimen zoomausta muutettiin tai PHA-suodatin kytkettiin päälle/pois. Koodi siis laski sijainnit uusiksi jokaisella ruudunpäivityksellä.
+* **Johtopäätös:** Epäonnistunut. Visuaalinen tyyli oli oikein, mutta tilanhallinta ja renderöintilogiikka vaativat korjausta.
+
+### Korjaus ja uusintatesti
+* **Tehty korjaus:** Ohjelmistoarkkitehtuuria ja käyttöliittymää muutettiin merkittävästi. 
+  1. Lisättiin HUD-paneeliin erillinen "Scan"-hakupainike (satelliittikuvakkeella). 
+  2. Automaattinen API-kysely poistettiin: data haetaan ja asteroidien *sijainnit lasketaan ja lukitaan muistiin vain kerran* painiketta painettaessa. 
+  3. Suodattimen (checkbox) klikkaaminen tai ikkunan koon muuttaminen vain piirtää jo kertaalleen tallennetut sijainnit uudelleen uudelleensijoittamatta niitä. 
+  4. Sijoittelualgoritmia rajattiin siten, että arvottu säde ei ylitä Canvaksen äärirajoja.
+* **Uusintatestin havaittu tulos:** Sovellus ei enää hae dataa automaattisesti, vaan odottaa käyttäjän "Scan"-komentoa (säästää myös API-kutsuja estäen NASA:n timeouteja). Painalluksen jälkeen kaikki 8 asteroidia ilmestyvät ruudulle oikein värikoodattuina eivätkä karkaa ikkunan ulkopuolelle. Kun PHA-suodattimen kytkee päälle, turvalliset pisteet katoavat, mutta vaaralliset pysyvät vakaasti omilla paikoillaan. Myös zoomaaminen on vakaata.
+* **Johtopäätös:** **Läpäisty.** Korjaus poisti jatkuvan API-kyselyriskin ja vakautti käyttöliittymän visuaalisen asettelun täydellisesti. Vaatimukset V3 ja V5 toimivat nyt saumattomasti yhteen.
+
+**HUOM: NASA:n rajapinta voi mennä solmuun, jos scan-nappia painaa liian monta kertaa peräkkäin!**
+
+Vaiheen 3 kuva:
+
+<img width="959" height="405" alt="image" src="https://github.com/user-attachments/assets/2b4d57aa-1f3b-4734-a6f8-23b7b6f1cb9f" />
 
 -----------------------------------------------------------------------------------------------------------------------------
