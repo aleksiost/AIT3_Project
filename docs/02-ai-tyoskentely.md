@@ -83,3 +83,27 @@ Luin tekoälyn perustelut ja koodiehdotuksen läpi. Koska ehdotus paransi huomat
 
 Tarkistin DOM-päivityksen toimivuuden selaimessa. Kun NeoWs-data oli haettu onnistuneesti, tarkistin Inspect-työkalulla (F12), että JavaScript osasi kohdistaa datan oikein näihin uusiin ID-tunnisteisiin.
 ---------------------------------------------------------------------------------------------------------------------------
+
+# 3. Vaihe 3 Prompt
+
+> Vaihe 2 on valmis, ja asteroididata on onnistuneesti haettu ja jäsennelty taulukkoon. Siirrytään vaiheeseen 3: visualisointiin HTML5 Canvas -elementillä.
+
+> Meillä on HTML-rakenteessa valmiina <canvas id="asteroid-canvas"></canvas>, joka on CSS:ssä aseteltu position: absolute maapallokuvan päälle koko ruudun kokoiseksi.
+
+> Tehtävät app.js -tiedostoon:
+
+> 1. Tee logiikka, joka asettaa Canvaksen leveyden ja korkeuden vastaamaan selainikkunan kokoa (window.innerWidth / innerHeight), jotta piirtojälki pysyy terävänä.
+> 
+> 2. Luo uusi funktio drawAsteroids(asteroids), joka ottaa vastaan NeoWs-rajapinnasta jäsennetyn asteroiditaulukon. Kutsu tätä funktiota heti, kun data on haettu onnistuneesti.
+> 
+> 3. Sijoittelu: Laske Canvaksen keskipiste. Sijoita asteroidit satunnaisesti ympyrän tai ellipsin muotoiselle radalle keskipisteen ympärille. Tärkeää: Jätä keskelle tarpeeksi iso tyhjä säde (esim. 30-40% ruudun korkeudesta), jotta asteroidit eivät piirry maapallokuvan päälle.
+> 
+> 4. Tyyli: Piirrä jokainen asteroidi hohtavana valopisteenä, jolla on pieni himmenevä valojana (komeettamainen häntä).
+> 
+> 5. Värikoodaus: Hyödynnä datassa olevaa PHA-booleania (Potentially Hazardous). Jos asteroidi on vaarallinen, tee sen hohto punaiseksi/oranssiksi. Muuten tee siitä vaaleansininen tai valkoinen.
+
+> Anna minulle Canvasta ja piirtämistä koskevat uudet JavaScript-koodit kokonaisina.
+
+> Vaihe 3 koskee lähes täysin vaatimusta V3 ja valmistelee vaatimusta V5.
+>
+-----------------------------------------------------------------------------------------------------------------------------
