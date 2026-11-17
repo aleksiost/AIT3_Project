@@ -40,13 +40,26 @@
       </div>
     </div>
 
-    <!-- Kelluva HUD-ohjauspaneeli (ReactBits-henkinen Spotlight-kortti) -->
+    <!-- Kelluva HUD-ohjauspaneeli -->
     <aside class="hud-panel" id="hud-panel">
-      <div class="panel-header">
-        <h2>TELEMETRY &amp; CONTROLS</h2>
-        <span class="sub-label">DSCOVR // NEOWS FEED</span>
+      <!-- Otsikko ja Scan-painike -->
+      <div class="panel-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <h2>TELEMETRY &amp; CONTROLS</h2>
+          <span class="sub-label">DSCOVR // NEOWS FEED</span>
+        </div>
+        <button id="scan-btn" class="scan-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 7l6-6 4 4-6 6"></path>
+            <path d="M4 14l-4 4 6 6 4-4"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M10 10l4 4"></path>
+          </svg>
+          SCAN
+        </button>
       </div>
 
+      <!-- Tämä osio oli todennäköisesti vahingossa poistunut -->
       <div class="telemetry-grid">
         <div class="telemetry-item">
           <span class="label">EARTH IMAGE TIMESTAMP</span>
@@ -54,7 +67,7 @@
         </div>
         <div class="telemetry-item">
           <span class="label">ASTEROID SCAN DATE</span>
-          <span class="value" id="neo-timestamp">STANDBY (PHASE 2)</span>
+          <span class="value" id="neo-timestamp">STANDBY</span>
         </div>
         <div class="telemetry-item">
           <span class="label">DETECTED OBJECTS</span>
@@ -77,7 +90,7 @@
       </div>
 
       <div class="panel-footer">
-        <span id="status-message">Initializing EPIC imagery subsystem...</span>
+        <span id="status-message">System online. Press SCAN to acquire telemetry.</span>
       </div>
     </aside>
   </main>
