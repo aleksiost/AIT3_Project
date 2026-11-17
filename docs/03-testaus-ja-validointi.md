@@ -32,7 +32,7 @@ Tässä vaiheessa testattiin käyttöliittymän asettelua ja maapallokuvan (EPIC
 * **Johtopäätös:** **Läpäisty.** Vaatimus V1 toteutuu halutulla tavalla.
 
 Kuva vaiheesta 1:
-<img width="959" height="413" alt="image" src="https://github.com/user-attachments/assets/56430c4d-7289-452f-8aa6-a9f1e3ab8793" />
+<img width="959" height="410" alt="image" src="https://github.com/user-attachments/assets/58dca9c2-5cbe-4bfe-b91b-d7f498cfbc84" />
 
 --------------------------------------------------------------------------------------------------------------------------
 
