@@ -38,8 +38,6 @@ Koska teen projektin yksin ilman agenttista ympäristöä, prosessini on seuraav
 4. **Iterointi:** Jos koodi ei toimi, kerron AI:lle tarkan virheilmoituksen ja pyydän korjausta.
 5. **Tallennus:** Kun yksi ominaisuus (esim. kuvan haku) toimii, teen Git commitin.
 
-## 4. Esimerkki AI-tuotoksen tarkistamisesta ja korjaamisesta
-
 ----------------------------------------------------------------------------------------------------------------------------
 
 # 2. Vaihe 2 Prompt
@@ -75,4 +73,13 @@ Koko: Syvällä estimated_diameter.meters -objektissa.
 
 Etäisyys: close_approach_data -taulukossa (joka sisältää yleensä vain yhden alkion kyseiselle ohitukselle), sieltä polussa [0].miss_distance.kilometers.
 
+## Geminin antama korjausehdotus promptissa.
+
+**Tapaus: Käyttöliittymäelementtien tarkennus Vaiheessa 2**
+
+Kun ohjeistin tekoälyä rakentamaan Vaiheen 2 (NeoWs-datan haku), olin alun perin suunnitellut datan tulostettavaksi yhteen yksinkertaiseen `<p>`-elementtiin. Koodia generoidessaan tekoäly kuitenkin ehdotti, että aikaleima ja asteroidien lukumäärä kannattaisi erottaa omiin tyylikkäisiin `<span>`-elementteihinsä (`#neo-timestamp` ja `#neo-count`) osaksi HUD-tyyppistä infopaneelia. 
+
+Luin tekoälyn perustelut ja koodiehdotuksen läpi. Koska ehdotus paransi huomattavasti käyttöliittymän "sci-fi"- ja "glassmorphism"-teemaa rikkomatta alkuperäistä vaatimusta V4 (Aikaleimojen esittäminen), annoin tekoälylle luvan lisätä nämä elementit HTML-runkoon jo tässä vaiheessa. 
+
+Tarkistin DOM-päivityksen toimivuuden selaimessa. Kun NeoWs-data oli haettu onnistuneesti, tarkistin Inspect-työkalulla (F12), että JavaScript osasi kohdistaa datan oikein näihin uusiin ID-tunnisteisiin.
 ---------------------------------------------------------------------------------------------------------------------------
