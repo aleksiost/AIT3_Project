@@ -107,3 +107,22 @@ Tarkistin DOM-päivityksen toimivuuden selaimessa. Kun NeoWs-data oli haettu onn
 > Vaihe 3 koskee lähes täysin vaatimusta V3 ja valmistelee vaatimusta V5.
 >
 -----------------------------------------------------------------------------------------------------------------------------
+
+Vaiheen 3 syntyneen ongelman korjausksen prompti:
+
+> Värikoodaus ja asteroidien visualisoinnin tyyli on erittäin hyvä, pidetään se ennallaan.
+
+> Ohjelmassa on kuitenkin yksi merkittävä virhe:
+
+> Asteroidien sijainti välillä ilmestyy näytön/ikkunan ulkopuolelle.
+> - Esim. Haun mukaan sivupalkissa löydettyjä kappaleita on 8, mutta maapallon ympärillä näkyi vain 4. Ikkunan uudelleen lataamisen jälkeen niitä näkyi 5 jne.
+> 
+> Lisäksi niiden sijainti koko ajan päivittyy satunnaisesti, jos skaalaan selaimessa zoomausta TAI jos valitsen PHA-suodatuksen päälle tai pois päältä.
+> 
+> - Korjataan tämä lisäämällä ehto, että molempien APIen haku tehdään erillisellä hakupainikkeella, jossa lukee "Scan" ja siinä on satelliitin kuvake.
+> 
+> - Varmista myös, että asteroidien sijainnit käyttöliittymässä määritetään vain kerran haun yhteydessä.
+> 
+> Näin voidaan minimoida jatkuva API-kysely ja asteroidien sijainnin randomointi.
+>
+-----------------------------------------------------------------------------------------------------------------------------
