@@ -36,4 +36,23 @@ Kuva vaiheesta 1:
 
 --------------------------------------------------------------------------------------------------------------------------
 
-## Vaihe 2:
+## Vaihe 2: Asteroididatan haku (NeoWs API) ja käyttöliittymän päivitys
+
+Tässä vaiheessa testattiin NASA:n NeoWs-rajapinnan kutsumista, datan jäsentämistä oikeaan muotoon koodin sisällä sekä HUD-paneelin aikaleimojen ja lukumäärien päivitystä.
+
+### Testitapaus 2: Datan haku, jäsennys ja HUD-paneelin päivitys (Normaalitapaus)
+* **Vaatimukset:** V2 (Asteroididatan haku), V4 (Aikaleimojen esittäminen, osittain)
+* **Lähtötilanne:** Sovellus käynnistetään selaimessa. Selaimen kehitystyökalut (F12) ja Console-välilehti ovat auki.
+* **Koe:** Sivun latautuminen ja automaattisen `fetchNeoData()` -funktion suorittaminen kuluvalle päivämäärälle (esim. 17.11.2026).
+* **Odotettu tulos:**
+  1. Funktio hakee onnistuneesti rajapinnasta kuluvan päivän dataa ilman kaatumista.
+  2. Käyttöliittymän HUD-paneelissa olevat erilliset `<span>`-elementit (`#neo-timestamp` ja `#neo-count`) päivittyvät kertomaan oikean päivämäärän ja löydettyjen asteroidien lukumäärän (tämä tarkennettu rakenne korvasi alkuperäisen yksittäisen p-elementin tekoälyn ehdotuksesta).
+  3. Selaimen konsoliin tulostuu jäsennelty lista objekteista (Array), joista jokainen sisältää selkeästi nimettyinä kenttinä: Nimi, Koko (max metriä), Ohitusetäisyys (km) ja Vaarallinen (PHA - boolean).
+* **Havaittu tulos:** 
+  API-haku onnistui. Käyttöliittymän `#neo-timestamp` ja `#neo-count` -elementit päivittyivät tyylikkäästi osana lasimaista HUD-paneelia rikkomatta ulkoasua. Konsoliin tulostui teksti "Asteroidit (2026-11-17): 8 kpl" ja taulukko, joka sisälsi tasan 8 objektia. Datarakenne oli täysin odotetun mukainen: esimerkiksi indeksi 0 palautti asteroidin "322756 (2001 CK32)" (koko 847 metriä) ja indeksissä 7 ollut "(2020 DR2)" palautti `Vaarallinen (PHA): true`, mikä vahvistaa, että boolean-tieto siirtyy oikein tulevaa suodatuslogiikkaa varten.
+* **Johtopäätös:** **Läpäisty.** API-haku, käyttöliittymän tekstien päivitys DOM:iin ja datan muotoilu (parsing) toimivat täydellisesti odotetulla tavalla.
+
+Kuva vaiheesta 2:
+<img width="686" height="200" alt="image" src="https://github.com/user-attachments/assets/1e839483-eb9c-4b29-bbf0-c0f594700100" />
+
+-----------------------------------------------------------------------------------------------------------------------------
