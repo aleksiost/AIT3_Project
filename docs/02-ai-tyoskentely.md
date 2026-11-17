@@ -1,6 +1,6 @@
 # Alkuprompti, käytetyt AI-työkalut ja työskentelyprosessi
 
-## 1. Alkuprompt
+# 1. Alkuprompt
 
 Käytin koodauksen aloittamiseen seuraavaa alkupromptia, joka pohjautuu suoraan projektikuvauksen vaatimuksiin. Annoin tekoälylle tarkat teknologiat ja pyysin jakamaan työn osiin:
 
@@ -39,3 +39,22 @@ Koska teen projektin yksin ilman agenttista ympäristöä, prosessini on seuraav
 5. **Tallennus:** Kun yksi ominaisuus (esim. kuvan haku) toimii, teen Git commitin.
 
 ## 4. Esimerkki AI-tuotoksen tarkistamisesta ja korjaamisesta
+
+# 2. Vaihe 2 Prompt
+
+> Vaihe 1 on valmis ja käyttöliittymän tyylit ovat kunnossa. Siirrytään vaiheeseen 2: NASA NeoWs -rajapinnan datan hakemiseen.
+
+> Tavoite:
+
+> Haluamme hakea kuluvan päivän asteroidiohitukset NeoWs API:sta.
+
+> Tehtävät:
+
+> Kirjoita app.js-tiedostoon uusi asynkroninen funktio fetchNeoData().
+> Funktio luo automaattisesti kuluvan päivän päivämäärän (YYYY-MM-DD) ja tekee API-pyynnön NeoWs-rajapinnan 'feed'-päätepisteeseen käyttäen DEMO_KEY-avainta.
+> Älä vielä koske Canvas-elementtiin tai koodaa valopisteiden piirtämistä. Keskitytään vain datan hakemiseen.
+> Päivitä HTML-infopaneelissa oleva <p id="neo-date"> -elementti näyttämään kuluva päivämäärä ja haettujen asteroidien kokonaislukumäärä (esim. 'Asteroidit (YYYY-MM-DD): 14 kpl').
+> Tulosta selaimen konsoliin console.log()-komennolla taulukko tämän päivän asteroideista. Sisällytä tulostukseen kunkin asteroidin nimi, arvioitu koko (kilometriä tai metriä), ohitusetäisyys (kilometriä) sekä boolean-arvo 'is_potentially_hazardous_asteroid'.
+> Anna minulle app.js-tiedostoon lisättävät uudet osat ja kerro lyhyesti, mistä polusta NeoWs-rajapinnan JSON-vastauksesta löydät nämä asteroidit.
+
+> Huom. Vaihe 2 keskittyy vaatimukseen V2, mutta se myös luo pohjaa vaatimuksille V4 ja V6. 
