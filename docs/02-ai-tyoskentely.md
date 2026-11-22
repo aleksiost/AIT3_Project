@@ -126,3 +126,29 @@ Vaiheen 3 syntyneen ongelman korjausksen prompti:
 > Näin voidaan minimoida jatkuva API-kysely ja asteroidien sijainnin randomointi.
 >
 -----------------------------------------------------------------------------------------------------------------------------
+
+# Vaihe 3.1
+
+> Vaihe 3 toimii nyt loistavasti: Scan-painike hakee datan, asteroidien sijainnit lukitaan kerran ja PHA-suodatin toimii vakaasti.
+> Tehdään tässä välissä vielä vaihe 3.1: lisätään interaktiivinen infolaatikko (tooltip), joka aukeaa viemällä hiiri asteroidin päälle (Käyttäjäskenaario 2).
+
+> Tehtävät:
+
+> HTML ja CSS: Lisää kelluva tooltip-elementti (esim. <div id="asteroid-tooltip" class="hidden">), joka noudattaa samaa lasimaista (glassmorphism) sci-fi-tyyliä kuin muu käyttöliittymä.
+> Varmista, että #asteroid-canvas ottaa vastaan hiiritapahtumia (poista mahdollinen pointer-events: none), jotta hover-tunnistus toimii.
+
+> Osumantarkistus (Hit detection): Lisää Canvakselle mousemove-tapahtumankuuntelija.
+> Laske hiiren sijainti suhteessa Canvakseen ja tarkista etäisyys kunkin asteroidin lukittuun (x, y) sijaintiin.
+> Käytä riittävän anteliasta tunnistussädettä (esim. 15–20 pikseliä), jotta pieneen valopisteeseen on helppo osua hiirellä.
+
+> Suodattimen huomioiminen: Osumantarkistus saa reagoida vain tällä hetkellä näkyvissä oleviin asteroideihin.
+> Jos 'Näytä vain vaaralliset' -suodatin on päällä, piilotetut asteroidit eivät saa avata infolaatikkoa.
+
+> Sisältö ja visuaalinen palaute: Näytä infolaatikossa asteroidin nimi, arvioitu maksimikoko (m), ohitusetäisyys (km), nopeus (km/h tai km/s, lisää tämä datan jäsennykseen
+> jos puuttuu) sekä vaarallisuusluokitus (PHA) korostetulla värillä, jos se on true. Muuta hiiren kursori pointer-muotoon, kun se on asteroidin päällä.
+
+> Asettelu ja rajat: Asemoi infolaatikko lähelle hiiren kursoria, mutta varmista, ettei se leikkaudu selainikkunan oikean tai alareunan ulkopuolelle. Piilota laatikko heti, kun hiiri siirtyy pois pisteen tai laatikon päältä.
+
+> Tärkeä rajoitus: Älä riko nykyistä Scan-painikkeen logiikkaa tai laske asteroidien sijainteja uudelleen hiiren liikkeestä. Anna vain tarvittavat muutokset index.html-, style.css- ja app.js-tiedostoihin."
+
+-----------------------------------------------------------------------------------------------------------------------------

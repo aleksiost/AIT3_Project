@@ -3,8 +3,8 @@
 Tämä dokumentti kuvaa Lähiavaruuden vahtikoira -projektin testauksen ja validoinnin. Testaus on jaettu projektin kehitysvaiheiden mukaisesti.
 
 ## Testiympäristö
-* **Ympäristö:** Google Chrome (versio XXX, päivitä tämä omaasi)
-* **Käyttöjärjestelmä:** Windows 11 / macOS (päivitä tämä omaasi)
+* **Ympäristö:** Google Chrome
+* **Käyttöjärjestelmä:** Windows 11
 * **API-avaimet:** Testeissä käytetty NASA:n DEMO_KEY-avainta.
 
 ---
@@ -91,5 +91,26 @@ Tässä vaiheessa testattiin asteroididatan piirtämistä visuaalisina elementte
 Vaiheen 3 kuva:
 
 <img width="959" height="405" alt="image" src="https://github.com/user-attachments/assets/2b4d57aa-1f3b-4734-a6f8-23b7b6f1cb9f" />
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+## Vaihe 3.1: Asteroidien infolaatikko (Tooltip) ja käytettävyysparannukset
+
+### Testitapaus 4: Hover-infolaatikon toiminta (Normaali- ja rajatapaus)
+* **Vaatimukset:** V3 (Visuaalinen esittäminen), V5 (Datan suodatus), Käyttäjäskenaario 2
+* **Lähtötilanne:** Data on haettu Scan-painikkeella ja asteroidit näkyvät maapallon ympärillä.
+* **Koe:** Viedään hiiri eri valopisteiden päälle sekä ilman suodatusta että PHA-suodattimen ollessa päällä.
+* **Odotettu tulos:** Infolaatikko aukeaa hiiren kohdalle näyttäen asteroidin nimen, koon, etäisyyden, nopeuden ja vaarallisuuden. Piilotetut kohteet eivät avaa laatikkoa, eikä laatikko leikkaudu ruudun ulkopuolelle.
+* **Havaittu tulos:** Tooltip toimi erinomaisesti kaikilla testatuilla kohteilla. Osumantarkistus reagoi vain näkyvissä oleviin asteroideihin, ja tiedot päivittyivät oikein.
+* **Johtopäätös:** **Läpäisty.**
+
+### Testauksen yhteydessä tehdyt käytettävyys- ja visuaalisuusmuutokset
+Testauksen aikana havaittiin muutama käyttökokemusta parantava kehityskohde, jotka toteutettiin heti tämän vaiheen yhteydessä:
+* **Aloitustilan selkeytys:** Sivun latautuessa ei enää näytetä lataustekstiä (*"acquiring dscovr epic signal..."*) tai maapallon hohtoa, vaan pelkkä *"WAITING FOR SCAN INITIATION"* -ilmoitus. Hohto ilmestyy vasta skannauksen ja kuvan latautumisen yhteydessä.
+* **Etäisyyksien suhteuttaminen:** Asteroidien sijoittelu muutettiin perustumaan todelliseen ohitusetäisyyteen (*miss distance*) saman skaalan sisällä. Näin lähempänä oleva kohde (esim. 16 milj. km) piirtyy aina lähemmäs maapalloa kuin kauempana oleva (esim. 75 milj. km). Samalla asteroidien minimietäisyyttä maapallosta kasvatettiin hieman.
+* **Animaation poisto:** Maapallon hengittämis-/zoom-animaatio poistettiin käytöstä näkymän rauhoittamiseksi.
+
+Kuva vaiheesta 3.1:
+<img width="959" height="410" alt="image" src="https://github.com/user-attachments/assets/39869d22-5de1-46dd-881d-683137eb80a7" />
 
 -----------------------------------------------------------------------------------------------------------------------------
