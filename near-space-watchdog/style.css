@@ -1,4 +1,3 @@
-/* style.css */
 :root {
   --bg-deep: #050508;
   --panel-bg: rgba(14, 15, 22, 0.72);
@@ -125,11 +124,11 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
+  pointer-events: auto;
   z-index: 2;
 }
 
-/* Maapallon kehys ja ilmakehän hohto */
+/* Maapallon kehys: täysin näkymätön ennen skannausta */
 .earth-wrapper {
   position: relative;
   width: 300px;
@@ -139,25 +138,27 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1;
-  background: radial-gradient(circle, #0b0e17 0%, #050508 75%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 0 30px rgba(0, 180, 255, 0.08);
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
   transform: scale(0.92);
-  transition: 
+  transition:
     transform 1.2s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-    border-color 1.2s ease;
+    border-color 1.2s ease,
+    background 0.8s ease;
   overflow: hidden;
 }
 
+/* Kun kuva on latautunut, kehys ja ilmakehän hohto ilmestyvät yhdessä (ilman hengitysanimaatiota) */
 .earth-wrapper.loaded {
   transform: scale(1);
+  background: radial-gradient(circle, #0b0e17 0%, #050508 75%);
   border-color: rgba(0, 240, 255, 0.35);
-  box-shadow: 
+  box-shadow:
     0 0 25px rgba(0, 210, 255, 0.35),
     0 0 65px rgba(0, 140, 255, 0.2),
     inset 0 0 22px rgba(0, 240, 255, 0.35);
-  animation: earth-breathe 8s ease-in-out 1.2s infinite alternate;
 }
 
 #earth-image {
@@ -175,7 +176,7 @@ body {
   opacity: 0;
 }
 
-/* Latausanimaatio */
+/* Aloitusteksti ja latausanimaatio */
 .loader {
   position: absolute;
   display: flex;
@@ -185,7 +186,7 @@ body {
   font-family: var(--font-mono);
   font-size: 0.72rem;
   color: var(--text-muted);
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-align: center;
   padding: 0 20px;
 }
@@ -197,6 +198,10 @@ body {
   border-top-color: var(--accent-cyan);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+.spinner.hidden {
+  display: none;
 }
 
 /* HUD-ohjauspaneeli hiiren Spotlight-efektillä */
@@ -394,6 +399,91 @@ input:checked + .slider::before {
   color: var(--text-muted);
 }
 
+/* Asteroidin hover-infolaatikko (Vaihe 3.1) */
+.asteroid-tooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 265px;
+  background: rgba(14, 15, 22, 0.84);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 12px;
+  padding: 14px 16px;
+  z-index: 30;
+  pointer-events: none;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.72);
+  transition: opacity 0.14s ease;
+}
+
+.asteroid-tooltip.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.asteroid-tooltip.hazardous {
+  border-color: rgba(255, 42, 95, 0.6);
+  box-shadow: 0 14px 36px rgba(255, 42, 95, 0.22);
+}
+
+.tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tt-name {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.03em;
+}
+
+.tt-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 500;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(0, 240, 255, 0.12);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+}
+
+.asteroid-tooltip.hazardous .tt-badge {
+  background: rgba(255, 42, 95, 0.16);
+  color: var(--accent-danger);
+  border-color: rgba(255, 42, 95, 0.45);
+}
+
+.tooltip-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+.tt-label {
+  color: var(--text-muted);
+}
+
+.tt-value {
+  text-align: right;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.tt-value.danger-text {
+  color: var(--accent-danger);
+  font-weight: 700;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
@@ -401,23 +491,6 @@ input:checked + .slider::before {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
-}
-
-@keyframes earth-breathe {
-  0% {
-    transform: scale(1);
-    box-shadow: 
-      0 0 25px rgba(0, 210, 255, 0.35),
-      0 0 65px rgba(0, 140, 255, 0.2),
-      inset 0 0 22px rgba(0, 240, 255, 0.35);
-  }
-  100% {
-    transform: scale(1.035);
-    box-shadow: 
-      0 0 32px rgba(0, 225, 255, 0.48),
-      0 0 80px rgba(0, 150, 255, 0.28),
-      inset 0 0 28px rgba(0, 240, 255, 0.45);
-  }
 }
 
 @media (max-width: 768px) {

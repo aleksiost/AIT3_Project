@@ -1,10 +1,10 @@
 /**
- * Near-Space Watchdog - Phase 1, 2 & 3
- * NASA EPIC Earth Imagery, NeoWs Telemetry & HTML5 Canvas Visualization
+ * Near-Space Watchdog - Phase 1, 2, 3 & 3.1
+ * NASA EPIC Earth Imagery, NeoWs Telemetry, Distance-Scaled Canvas Visualization & Tooltip
  */
 
 const CONFIG = {
-  API_KEY: 'JTcRqzTmj7whDtWFwTNMNmTGtkRmzrBHPFjmGkmw',
+  API_KEY: 'DEMO_KEY',
   EPIC_META_URL: 'https://api.nasa.gov/EPIC/api/natural',
   EPIC_ARCHIVE_BASE: 'https://epic.gsfc.nasa.gov/archive/natural'
 };
@@ -12,13 +12,15 @@ const CONFIG = {
 const state = {
   onlyHazardous: false,
   epicData: null,
-  asteroids: [] 
+  asteroids: []
 };
 
 const elements = {
   earthWrapper: document.querySelector('.earth-wrapper'),
   earthImage: document.getElementById('earth-image'),
   earthLoader: document.getElementById('earth-loader'),
+  earthSpinner: document.getElementById('earth-spinner'),
+  loaderText: document.getElementById('loader-text'),
   epicTimestamp: document.getElementById('epic-timestamp'),
   neoTimestamp: document.getElementById('neo-timestamp'),
   neoCount: document.getElementById('neo-count'),
@@ -26,7 +28,15 @@ const elements = {
   statusMessage: document.getElementById('status-message'),
   hudPanel: document.getElementById('hud-panel'),
   canvas: document.getElementById('asteroid-canvas'),
-  scanBtn: document.getElementById('scan-btn')
+  scanBtn: document.getElementById('scan-btn'),
+  // Tooltip-elementit
+  tooltip: document.getElementById('asteroid-tooltip'),
+  ttName: document.getElementById('tt-name'),
+  ttBadge: document.getElementById('tt-badge'),
+  ttSize: document.getElementById('tt-size'),
+  ttDistance: document.getElementById('tt-distance'),
+  ttSpeed: document.getElementById('tt-speed'),
+  ttPha: document.getElementById('tt-pha')
 };
 
 const ctx = elements.canvas.getContext('2d');
@@ -55,7 +65,7 @@ async function fetchLatestEarthImage() {
       elements.earthImage.classList.remove('hidden');
       elements.earthWrapper.classList.add('loaded');
       elements.epicTimestamp.textContent = `${latestEntry.date} UTC`;
-      updateStatus(`EPIC feed nominal.`);
+      updateStatus('EPIC feed nominal.');
     };
     elements.earthImage.src = imageUrl;
   } catch (error) {
@@ -78,6 +88,7 @@ function useFallbackEarthImage() {
 
 /**
  * Hakee kuluvan päivän asteroidiohitukset NASA NeoWs -rajapinnasta.
+ * Laskee asteroidien suhteellisen etäisyyden (distRatio) todellisen ohitusetäisyyden perusteella.
  */
 async function fetchNeoData() {
   const now = new Date();
@@ -99,17 +110,36 @@ async function fetchNeoData() {
     elements.neoTimestamp.textContent = today;
     elements.neoCount.textContent = `${todaysAsteroids.length} kpl`;
 
-    // LASKETAAN SIJAINNIT VAIN KERRAN HAUN YHTEYDESSÄ
-    state.asteroids = todaysAsteroids.map(asteroid => ({
-      name: asteroid.name,
-      sizeMaxMeters: Math.round(asteroid.estimated_diameter.meters.estimated_diameter_max),
-      missDistanceKm: Math.round(asteroid.close_approach_data[0].miss_distance.kilometers),
-      isHazardous: asteroid.is_potentially_hazardous_asteroid,
-      // Kulma (0 - 360 astetta)
-      angle: Math.random() * Math.PI * 2,
-      // Suhteellinen etäisyys (0.0 - 1.0) maapallon ja ruudun reunan välillä
-      distRatio: Math.random()
-    }));
+    // Kerätään todelliset ohitusetäisyydet suhteellista skaalausta varten
+    const distances = todaysAsteroids.map(a =>
+      parseFloat(a.close_approach_data[0].miss_distance.kilometers)
+    );
+    const minDist = Math.min(...distances);
+    const maxDist = Math.max(...distances);
+
+    // Lasketaan sijainnit vain kerran haun yhteydessä
+    state.asteroids = todaysAsteroids.map(asteroid => {
+      const missDistanceKm = Math.round(
+        parseFloat(asteroid.close_approach_data[0].miss_distance.kilometers)
+      );
+
+      // Normalisoidaan etäisyys välille 0.0 (lähin) – 1.0 (kauin)
+      const distRatio = maxDist > minDist
+        ? (missDistanceKm - minDist) / (maxDist - minDist)
+        : 0.5;
+
+      return {
+        name: asteroid.name.replace(/[()]/g, '').trim(),
+        sizeMaxMeters: Math.round(asteroid.estimated_diameter.meters.estimated_diameter_max),
+        missDistanceKm,
+        velocityKmh: Math.round(parseFloat(asteroid.close_approach_data[0].relative_velocity.kilometers_per_hour)),
+        isHazardous: asteroid.is_potentially_hazardous_asteroid,
+        angle: Math.random() * Math.PI * 2,
+        distRatio,
+        x: null,
+        y: null
+      };
+    });
 
     updateStatus('NeoWs telemetry nominal. Drawing orbital visualization...');
     drawAsteroids(state.asteroids);
@@ -126,13 +156,14 @@ async function fetchNeoData() {
 function resizeCanvas() {
   elements.canvas.width = window.innerWidth;
   elements.canvas.height = window.innerHeight;
+  hideTooltip();
   if (state.asteroids.length > 0) {
     drawAsteroids(state.asteroids);
   }
 }
 
 /**
- * Piirtää asteroidit satunnaisesti maapallon ympärille valopisteinä ja -janoina.
+ * Piirtää asteroidit maapallon ympärille valopisteinä ja -janoina.
  */
 function drawAsteroids(asteroids) {
   ctx.clearRect(0, 0, elements.canvas.width, elements.canvas.height);
@@ -140,32 +171,37 @@ function drawAsteroids(asteroids) {
   const cx = elements.canvas.width / 2;
   const cy = elements.canvas.height / 2;
 
-  // LASKETAAN MAAPALLON TODELLINEN KOKO DOM-ELEMENTISTÄ (Dynaaminen skaalautuvuus)
+  // Maapallon todellinen koko DOM-elementistä (Dynaaminen skaalautuvuus)
   const earthRect = elements.earthWrapper.getBoundingClientRect();
   const earthRadius = earthRect.width / 2;
 
-  // LASKETAAN PANEELIEN VIEMÄ TILA TURVA-ALUEELLE
+  // HUD-paneelin viemä tila turva-alueelle
   const hudRect = elements.hudPanel.getBoundingClientRect();
-  
-  // Turvasäde: Asteroidit alkavat heti maapallon pinnan / hohdon ulkopuolelta
-  const minRadius = earthRadius + 20;
-  
-  // Maksimisäde: Varmistetaan, ettei yksikään asteroidi osu HUD-paneelin alle
-  // Lasketaan etäisyys keskipisteestä HUD-paneelin vasempaan yläkulmaan
+
+  // Turvasäde: Nostettu hieman suuremmaksi (45px maapallon reunasta)
+  const minRadius = earthRadius + 45;
+
+  // Maksimisäde: Varmistetaan, ettei yksikään asteroidi osu HUD-paneelin alle tai ruudun ulkopuolelle
   const distToHud = Math.hypot(hudRect.left - cx, hudRect.top - cy);
-  // Maksimisäde on joko paneelin reuna (miinus turvaväli 20px) tai ruudun reuna
-  const maxRadius = Math.min(
-    distToHud - 20, 
-    Math.min(cx, cy) * 0.90
+  const maxRadius = Math.max(
+    minRadius + 20,
+    Math.min(distToHud - 20, Math.min(cx, cy) * 0.90)
   );
 
   asteroids.forEach(ast => {
-    if (state.onlyHazardous && !ast.isHazardous) return;
+    if (state.onlyHazardous && !ast.isHazardous) {
+      ast.x = null;
+      ast.y = null;
+      return;
+    }
 
-    // Sijainti lasketaan tallennetun suhdeluvun ja uuden, rajatun ruudun koon perusteella
     const radius = minRadius + ast.distRatio * (maxRadius - minRadius);
     const x = cx + Math.cos(ast.angle) * radius;
     const y = cy + Math.sin(ast.angle) * radius;
+
+    // Tallennetaan lukittu ruutusijainti osumantarkistusta varten
+    ast.x = x;
+    ast.y = y;
 
     const coreColor = ast.isHazardous ? '#ff2a5f' : '#00f0ff';
     const glowColor = ast.isHazardous ? 'rgba(255, 42, 95, 0.4)' : 'rgba(0, 240, 255, 0.4)';
@@ -173,7 +209,7 @@ function drawAsteroids(asteroids) {
 
     const trailLength = 0.25;
     const startAngle = ast.angle - trailLength;
-    
+
     const tailX = cx + Math.cos(startAngle) * radius;
     const tailY = cy + Math.sin(startAngle) * radius;
 
@@ -182,7 +218,7 @@ function drawAsteroids(asteroids) {
     gradient.addColorStop(1, glowColor);
 
     ctx.save();
-    
+
     // Valojana
     ctx.beginPath();
     ctx.arc(cx, cy, radius, startAngle, ast.angle);
@@ -203,6 +239,91 @@ function drawAsteroids(asteroids) {
   });
 }
 
+/**
+ * Osumantarkistus (Hit detection) Canvaksen hiiren liikkeelle.
+ * Reagoi vain näkyvissä oleviin asteroideihin eikä laske sijainteja uudelleen.
+ */
+function handleCanvasMouseMove(e) {
+  if (state.asteroids.length === 0) return;
+
+  const rect = elements.canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const hitRadius = 18;
+  let hitAsteroid = null;
+  let closestDist = hitRadius;
+
+  for (const ast of state.asteroids) {
+    if (state.onlyHazardous && !ast.isHazardous) continue;
+    if (ast.x === null || ast.y === null) continue;
+
+    const dist = Math.hypot(mouseX - ast.x, mouseY - ast.y);
+    if (dist <= closestDist) {
+      closestDist = dist;
+      hitAsteroid = ast;
+    }
+  }
+
+  if (hitAsteroid) {
+    elements.canvas.style.cursor = 'pointer';
+    showTooltip(hitAsteroid, e.clientX, e.clientY);
+  } else {
+    hideTooltip();
+  }
+}
+
+/**
+ * Näyttää ja asemoi infolaatikon kursorin viereen pysyen ikkunan rajojen sisällä.
+ */
+function showTooltip(ast, clientX, clientY) {
+  elements.ttName.textContent = ast.name;
+  elements.ttSize.textContent = `${ast.sizeMaxMeters.toLocaleString('en-US')} m`;
+  elements.ttDistance.textContent = `${ast.missDistanceKm.toLocaleString('en-US')} km`;
+  elements.ttSpeed.textContent = `${ast.velocityKmh.toLocaleString('en-US')} km/h`;
+
+  if (ast.isHazardous) {
+    elements.tooltip.classList.add('hazardous');
+    elements.ttBadge.textContent = 'PHA WARNING';
+    elements.ttPha.textContent = 'POTENTIALLY HAZARDOUS';
+    elements.ttPha.classList.add('danger-text');
+  } else {
+    elements.tooltip.classList.remove('hazardous');
+    elements.ttBadge.textContent = 'NOMINAL';
+    elements.ttPha.textContent = 'SAFE';
+    elements.ttPha.classList.remove('danger-text');
+  }
+
+  elements.tooltip.classList.remove('hidden');
+
+  const offset = 16;
+  const margin = 12;
+  const boxWidth = elements.tooltip.offsetWidth;
+  const boxHeight = elements.tooltip.offsetHeight;
+
+  let left = clientX + offset;
+  let top = clientY + offset;
+
+  if (left + boxWidth > window.innerWidth - margin) {
+    left = clientX - boxWidth - offset;
+  }
+  if (top + boxHeight > window.innerHeight - margin) {
+    top = clientY - boxHeight - offset;
+  }
+
+  elements.tooltip.style.transform = `translate(${Math.max(margin, left)}px, ${Math.max(margin, top)}px)`;
+}
+
+/**
+ * Piilottaa infolaatikon ja palauttaa oletuskursorin.
+ */
+function hideTooltip() {
+  elements.canvas.style.cursor = 'default';
+  if (elements.tooltip) {
+    elements.tooltip.classList.add('hidden');
+  }
+}
+
 function updateStatus(message) {
   elements.statusMessage.textContent = message;
 }
@@ -211,6 +332,7 @@ function initInteractions() {
   // Suodatuskytkin kutsuu uudelleenpiirtoa, muttei arvo sijainteja uusiksi
   elements.hazardToggle.addEventListener('change', (e) => {
     state.onlyHazardous = e.target.checked;
+    hideTooltip();
     drawAsteroids(state.asteroids);
     if (state.onlyHazardous) {
       updateStatus('Filter active: Displaying ONLY Potentially Hazardous Asteroids.');
@@ -223,14 +345,25 @@ function initInteractions() {
   elements.scanBtn.addEventListener('click', async () => {
     elements.scanBtn.disabled = true;
     elements.scanBtn.classList.add('scanning');
+    hideTooltip();
+
+    // Näytetään latauskuvake ja teksti vain, jos maapallokuvaa ei ole vielä ladattu
+    if (!elements.earthWrapper.classList.contains('loaded')) {
+      elements.earthSpinner.classList.remove('hidden');
+      elements.loaderText.textContent = 'ACQUIRING DSCOVR EPIC SIGNAL...';
+    }
+
     updateStatus('Initiating orbital scan...');
-    
-    // Suoritetaan molemmat haut yhtä aikaa
+
     await Promise.all([fetchLatestEarthImage(), fetchNeoData()]);
-    
+
     elements.scanBtn.disabled = false;
     elements.scanBtn.classList.remove('scanning');
   });
+
+  // Canvaksen hover-kuuntelijat
+  elements.canvas.addEventListener('mousemove', handleCanvasMouseMove);
+  elements.canvas.addEventListener('mouseleave', hideTooltip);
 
   elements.hudPanel.addEventListener('mousemove', (e) => {
     const rect = elements.hudPanel.getBoundingClientRect();
@@ -243,9 +376,9 @@ function initInteractions() {
   window.addEventListener('resize', resizeCanvas);
 }
 
-// Käynnistys: Vain käyttöliittymä, tiedot haetaan nyt napilla
+// Käynnistys: Vain käyttöliittymä, tiedot haetaan napilla
 document.addEventListener('DOMContentLoaded', () => {
   initInteractions();
-  resizeCanvas(); 
+  resizeCanvas();
   updateStatus('System online. Press SCAN to acquire telemetry.');
 });
