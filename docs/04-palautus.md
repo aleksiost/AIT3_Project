@@ -2,7 +2,7 @@
 
 * **Tekijä:** Aleksios Tuovinen
 * **Palautuspäivä:** 24.11.2026
-* **Projektivideo (OneDrive):** [Linkki]
+* **Projektivideo (OneDrive):** [Linkki videoon](https://metropoliafi-my.sharepoint.com/:v:/g/personal/aleksiot_metropolia_fi/IQAynuYtVNzsR7RgPX-BNIBkAV60UmCW8RLVLVARjMAg-oQ?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=FikoU2)
 
 ## Ohjeet arvioijalle
 
