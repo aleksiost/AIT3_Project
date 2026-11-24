@@ -33,6 +33,13 @@
       <div class="earth-wrapper">
         <div class="loader" id="earth-loader">
           <div class="spinner hidden" id="earth-spinner"></div>
+          <!-- Glassmorphism-estomerkki virhetilanteita varten -->
+          <div class="error-icon hidden" id="earth-error-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            </svg>
+          </div>
           <span id="loader-text">WAITING FOR SCAN INITIATION</span>
         </div>
         <img id="earth-image" alt="Latest Earth view from DSCOVR EPIC" class="hidden" />
@@ -92,7 +99,7 @@
     </aside>
   </main>
 
-  <!-- Asteroidin hover-infolaatikko (Vaihe 3.1) -->
+  <!-- Asteroidin hover-infolaatikko -->
   <div id="asteroid-tooltip" class="asteroid-tooltip hidden">
     <div class="tooltip-header">
       <span id="tt-name" class="tt-name">--</span>

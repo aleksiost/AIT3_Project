@@ -1,5 +1,5 @@
 /**
- * Near-Space Watchdog - Phase 1, 2, 3 & 3.1
+ * Near-Space Watchdog - Phase 1, 2, 3, 3.1 & 4: V6 Error Handling
  * NASA EPIC Earth Imagery, NeoWs Telemetry, Distance-Scaled Canvas Visualization & Tooltip
  */
 
@@ -20,6 +20,7 @@ const elements = {
   earthImage: document.getElementById('earth-image'),
   earthLoader: document.getElementById('earth-loader'),
   earthSpinner: document.getElementById('earth-spinner'),
+  earthErrorIcon: document.getElementById('earth-error-icon'),
   loaderText: document.getElementById('loader-text'),
   epicTimestamp: document.getElementById('epic-timestamp'),
   neoTimestamp: document.getElementById('neo-timestamp'),
@@ -42,16 +43,56 @@ const elements = {
 const ctx = elements.canvas.getContext('2d');
 
 /**
+ * Muodostaa selkeän englanninkielisen virheilmoituksen virheen syyn perusteella (Vaatimus V6).
+ */
+function formatApiError(error, serviceName) {
+  if (!navigator.onLine) {
+    return 'Network error: No internet connection detected.';
+  }
+  if (error.status === 429) {
+    return `${serviceName} error: API rate limit exceeded (429). Try again later or use a personal API key.`;
+  }
+  if (error.status === 403 || error.status === 401) {
+    return `${serviceName} error: Invalid or unauthorized API key (${error.status}).`;
+  }
+  if (error.status >= 500) {
+    return `${serviceName} error: NASA server unavailable (${error.status}).`;
+  }
+  if (error instanceof TypeError) {
+    return `Network error: Unable to reach NASA ${serviceName} API (offline or connection blocked).`;
+  }
+  return `${serviceName} error: ${error.message || 'Unknown telemetry failure.'}`;
+}
+
+/**
+ * Pysäyttää latausanimaation ja näyttää lasimaisen estomerkin sekä ERROR-tekstin.
+ */
+function showEarthErrorState() {
+  elements.earthSpinner.classList.add('hidden');
+  if (!elements.earthWrapper.classList.contains('loaded')) {
+    elements.earthLoader.style.display = 'flex';
+    elements.earthLoader.classList.add('is-error');
+    elements.earthErrorIcon.classList.remove('hidden');
+    elements.loaderText.textContent = 'ERROR';
+  }
+}
+
+/**
  * Hakee tuoreimman DSCOVR EPIC -kuvan.
  */
 async function fetchLatestEarthImage() {
   try {
-    updateStatus('Requesting latest telemetry from NASA EPIC...');
     const response = await fetch(`${CONFIG.EPIC_META_URL}?api_key=${CONFIG.API_KEY}`);
-    if (!response.ok) throw new Error(`EPIC API responded with status ${response.status}`);
+    if (!response.ok) {
+      const err = new Error(`HTTP ${response.status}`);
+      err.status = response.status;
+      throw err;
+    }
 
     const data = await response.json();
-    if (!Array.isArray(data) || data.length === 0) throw new Error('No imagery data returned.');
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error('No imagery data returned from EPIC API.');
+    }
 
     const latestEntry = data[data.length - 1];
     state.epicData = latestEntry;
@@ -60,30 +101,32 @@ async function fetchLatestEarthImage() {
     const [year, month, day] = datePart.split('-');
     const imageUrl = `${CONFIG.EPIC_ARCHIVE_BASE}/${year}/${month}/${day}/png/${latestEntry.image}.png`;
 
-    elements.earthImage.onload = () => {
-      elements.earthLoader.style.display = 'none';
-      elements.earthImage.classList.remove('hidden');
-      elements.earthWrapper.classList.add('loaded');
-      elements.epicTimestamp.textContent = `${latestEntry.date} UTC`;
-      updateStatus('EPIC feed nominal.');
-    };
-    elements.earthImage.src = imageUrl;
+    await new Promise((resolve, reject) => {
+      elements.earthImage.onload = () => {
+        elements.earthLoader.style.display = 'none';
+        elements.earthSpinner.classList.add('hidden');
+        elements.earthErrorIcon.classList.add('hidden');
+        elements.earthLoader.classList.remove('is-error');
+        elements.earthImage.classList.remove('hidden');
+        elements.earthWrapper.classList.add('loaded');
+        elements.epicTimestamp.textContent = `${latestEntry.date} UTC`;
+        resolve();
+      };
+
+      elements.earthImage.onerror = () => {
+        reject(new Error('Failed to load Earth image from NASA EPIC archive.'));
+      };
+
+      elements.earthImage.src = imageUrl;
+    });
+
+    return { ok: true };
   } catch (error) {
     console.error('NASA EPIC Error:', error);
-    useFallbackEarthImage();
+    showEarthErrorState();
+    elements.epicTimestamp.textContent = 'SIGNAL LOST';
+    return { ok: false, message: formatApiError(error, 'EPIC') };
   }
-}
-
-function useFallbackEarthImage() {
-  const fallbackUrl = 'https://epic.gsfc.nasa.gov/archive/natural/2023/10/14/png/epic_1b_20231014155333.png';
-  elements.earthImage.onload = () => {
-    elements.earthLoader.style.display = 'none';
-    elements.earthImage.classList.remove('hidden');
-    elements.earthWrapper.classList.add('loaded');
-    elements.epicTimestamp.textContent = '2023-10-14 15:53:33 UTC (CACHED)';
-    updateStatus('Notice: Using cached EPIC image.');
-  };
-  elements.earthImage.src = fallbackUrl;
 }
 
 /**
@@ -98,17 +141,19 @@ async function fetchNeoData() {
   const today = `${year}-${month}-${day}`;
 
   try {
-    updateStatus('Requesting asteroid telemetry from NASA NeoWs...');
-
     const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${today}&end_date=${today}&api_key=${CONFIG.API_KEY}`;
     const response = await fetch(url);
-    if (!response.ok) throw new Error(`NeoWs API responded with status ${response.status}`);
+    if (!response.ok) {
+      const err = new Error(`HTTP ${response.status}`);
+      err.status = response.status;
+      throw err;
+    }
 
     const data = await response.json();
     const todaysAsteroids = data.near_earth_objects[today] || [];
 
     elements.neoTimestamp.textContent = today;
-    elements.neoCount.textContent = `${todaysAsteroids.length} kpl`;
+    elements.neoCount.textContent = `${todaysAsteroids.length}`;
 
     // Kerätään todelliset ohitusetäisyydet suhteellista skaalausta varten
     const distances = todaysAsteroids.map(a =>
@@ -123,7 +168,6 @@ async function fetchNeoData() {
         parseFloat(asteroid.close_approach_data[0].miss_distance.kilometers)
       );
 
-      // Normalisoidaan etäisyys välille 0.0 (lähin) – 1.0 (kauin)
       const distRatio = maxDist > minDist
         ? (missDistanceKm - minDist) / (maxDist - minDist)
         : 0.5;
@@ -141,12 +185,14 @@ async function fetchNeoData() {
       };
     });
 
-    updateStatus('NeoWs telemetry nominal. Drawing orbital visualization...');
     drawAsteroids(state.asteroids);
+    return { ok: true };
 
   } catch (error) {
     console.error('NASA NeoWs Error:', error);
-    updateStatus('Error fetching asteroid data. See console for details.');
+    elements.neoTimestamp.textContent = 'SCAN FAILED';
+    elements.neoCount.textContent = '--';
+    return { ok: false, message: formatApiError(error, 'NeoWs') };
   }
 }
 
@@ -171,14 +217,11 @@ function drawAsteroids(asteroids) {
   const cx = elements.canvas.width / 2;
   const cy = elements.canvas.height / 2;
 
-  // Maapallon todellinen koko DOM-elementistä (Dynaaminen skaalautuvuus)
   const earthRect = elements.earthWrapper.getBoundingClientRect();
   const earthRadius = earthRect.width / 2;
-
-  // HUD-paneelin viemä tila turva-alueelle
   const hudRect = elements.hudPanel.getBoundingClientRect();
 
-  // Turvasäde: Nostettu hieman suuremmaksi (45px maapallon reunasta)
+  // Turvasäde: 45px maapallon reunasta
   const minRadius = earthRadius + 45;
 
   // Maksimisäde: Varmistetaan, ettei yksikään asteroidi osu HUD-paneelin alle tai ruudun ulkopuolelle
@@ -199,7 +242,6 @@ function drawAsteroids(asteroids) {
     const x = cx + Math.cos(ast.angle) * radius;
     const y = cy + Math.sin(ast.angle) * radius;
 
-    // Tallennetaan lukittu ruutusijainti osumantarkistusta varten
     ast.x = x;
     ast.y = y;
 
@@ -241,7 +283,6 @@ function drawAsteroids(asteroids) {
 
 /**
  * Osumantarkistus (Hit detection) Canvaksen hiiren liikkeelle.
- * Reagoi vain näkyvissä oleviin asteroideihin eikä laske sijainteja uudelleen.
  */
 function handleCanvasMouseMove(e) {
   if (state.asteroids.length === 0) return;
@@ -314,9 +355,6 @@ function showTooltip(ast, clientX, clientY) {
   elements.tooltip.style.transform = `translate(${Math.max(margin, left)}px, ${Math.max(margin, top)}px)`;
 }
 
-/**
- * Piilottaa infolaatikon ja palauttaa oletuskursorin.
- */
 function hideTooltip() {
   elements.canvas.style.cursor = 'default';
   if (elements.tooltip) {
@@ -324,12 +362,15 @@ function hideTooltip() {
   }
 }
 
-function updateStatus(message) {
+/**
+ * Päivittää tilaviestin. Virhetilassa teksti muuttuu punaiseksi.
+ */
+function updateStatus(message, isError = false) {
   elements.statusMessage.textContent = message;
+  elements.statusMessage.classList.toggle('status-error', isError);
 }
 
 function initInteractions() {
-  // Suodatuskytkin kutsuu uudelleenpiirtoa, muttei arvo sijainteja uusiksi
   elements.hazardToggle.addEventListener('change', (e) => {
     state.onlyHazardous = e.target.checked;
     hideTooltip();
@@ -347,21 +388,36 @@ function initInteractions() {
     elements.scanBtn.classList.add('scanning');
     hideTooltip();
 
-    // Näytetään latauskuvake ja teksti vain, jos maapallokuvaa ei ole vielä ladattu
+    // Nollataan mahdollinen aiempi virhetila ja käynnistetään latausanimaatio
     if (!elements.earthWrapper.classList.contains('loaded')) {
+      elements.earthLoader.style.display = 'flex';
+      elements.earthLoader.classList.remove('is-error');
+      elements.earthErrorIcon.classList.add('hidden');
       elements.earthSpinner.classList.remove('hidden');
       elements.loaderText.textContent = 'ACQUIRING DSCOVR EPIC SIGNAL...';
     }
 
-    updateStatus('Initiating orbital scan...');
+    updateStatus('Initiating orbital scan...', false);
 
-    await Promise.all([fetchLatestEarthImage(), fetchNeoData()]);
+    try {
+      const [epicResult, neoResult] = await Promise.all([
+        fetchLatestEarthImage(),
+        fetchNeoData()
+      ]);
 
-    elements.scanBtn.disabled = false;
-    elements.scanBtn.classList.remove('scanning');
+      if (!epicResult.ok || !neoResult.ok) {
+        showEarthErrorState();
+        const errorMsg = !epicResult.ok ? epicResult.message : neoResult.message;
+        updateStatus(errorMsg, true);
+      } else {
+        updateStatus('Telemetry nominal. Hover over any object for details.', false);
+      }
+    } finally {
+      elements.scanBtn.disabled = false;
+      elements.scanBtn.classList.remove('scanning');
+    }
   });
 
-  // Canvaksen hover-kuuntelijat
   elements.canvas.addEventListener('mousemove', handleCanvasMouseMove);
   elements.canvas.addEventListener('mouseleave', hideTooltip);
 

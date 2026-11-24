@@ -150,7 +150,7 @@ body {
   overflow: hidden;
 }
 
-/* Kun kuva on latautunut, kehys ja ilmakehän hohto ilmestyvät yhdessä (ilman hengitysanimaatiota) */
+/* Kun kuva on latautunut, kehys ja ilmakehän hohto ilmestyvät yhdessä */
 .earth-wrapper.loaded {
   transform: scale(1);
   background: radial-gradient(circle, #0b0e17 0%, #050508 75%);
@@ -176,7 +176,7 @@ body {
   opacity: 0;
 }
 
-/* Aloitusteksti ja latausanimaatio */
+/* Aloitusteksti, latausanimaatio ja virhetila */
 .loader {
   position: absolute;
   display: flex;
@@ -200,8 +200,33 @@ body {
   animation: spin 1s linear infinite;
 }
 
-.spinner.hidden {
+.spinner.hidden,
+.error-icon.hidden {
   display: none;
+}
+
+/* Glassmorphism-tyylinen estomerkki ilman valkoista taustaa */
+.error-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-danger);
+  background: rgba(255, 42, 95, 0.1);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 42, 95, 0.45);
+  box-shadow:
+    0 0 28px rgba(255, 42, 95, 0.25),
+    inset 0 0 16px rgba(255, 42, 95, 0.15);
+}
+
+.loader.is-error #loader-text {
+  color: var(--accent-danger);
+  font-weight: 500;
+  letter-spacing: 0.18em;
 }
 
 /* HUD-ohjauspaneeli hiiren Spotlight-efektillä */
@@ -399,7 +424,13 @@ input:checked + .slider::before {
   color: var(--text-muted);
 }
 
-/* Asteroidin hover-infolaatikko (Vaihe 3.1) */
+/* Punainen virheilmoitus alareunan tilapalkissa */
+#status-message.status-error {
+  color: var(--accent-danger);
+  font-weight: 500;
+}
+
+/* Asteroidin hover-infolaatikko */
 .asteroid-tooltip {
   position: fixed;
   top: 0;
