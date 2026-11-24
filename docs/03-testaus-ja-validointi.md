@@ -131,13 +131,26 @@ Kuva vaiheesta 3.1:
 * *Virheen tullessa skannauksen aloittama lataus jää silti aktiiviseksi.*
 * *Ohjelma suoritti skannauksen onnistuneesti, kun verkkoyhteys palautettiin ja "Scan"-painiketta painettiin uudelleen.*
 
-Kuvat tastauksesta:
+### Kuvat tastauksesta:
 
+#### Offline-tilan asetus päällä ja virheen näkyminen ohjelmassa.
+![Offline-tilan asetus päällä ja virheen näkyminen ohjelmassa.](Kuvat/Testi_ja_validointi_V6_1.png)
+
+#### Offline-virheen näkyminen konsolissa.
+![Offline-virheen näkyminen konsolissa.](Kuvat/Testi_ja_validointi_V6_2.png)
+
+#### Jumittunut lataus virheen tullessa.
+![Jumittunut lataus virheen tullessa.](Kuvat/Testi_ja_validointi_V6_3.png)
+
+#### Onnistunut skannaus, kun yhteys palautetaan.
+![Onnistunut skannaus, kun yhteys palautetaan.](Kuvat/Testi_ja_validointi_V6_4.png)
 
 * **Johtopäätös:** *Osittain läpäisty: virheilmoitus tulee näkyviin, mutta se ei kerro käyttäjälle mistä virheestö on kyse. Tämä ja lautuksen jumittuminen lopulta korjattu.*
 
-Kuvat korjausten jälkeen:
+### Kuva korjausten jälkeen:
 
+#### Virheilmoitus korjattu, väri parannettu ja jummittunut lataus korjattu.
+![Virheilmoitus korjattu, väri parannettu ja jummittunut lataus korjattu.](Kuvat/Testi_ja_validointi_V6_5.png)
 
 ---
 
