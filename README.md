@@ -1,4 +1,4 @@
-# Lähiavaruuden vahtikoira (Near Earth Dashboard)
+# Lähiavaruuden vahtikoira (Near-Space Dashboard)
 
 * **Tekijä:** Aleksios Tuovinen
 * **Teknologiat:** HTML5, Vanilla CSS (Glassmorphism), Vanilla JavaScript, HTML5 Canvas
