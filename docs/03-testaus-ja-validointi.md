@@ -114,3 +114,43 @@ Kuva vaiheesta 3.1:
 <img width="959" height="410" alt="image" src="https://github.com/user-attachments/assets/39869d22-5de1-46dd-881d-683137eb80a7" />
 
 -----------------------------------------------------------------------------------------------------------------------------
+
+## Vaihe 4: Virhetilanteiden hallinta (V6)
+
+### Testitapaus 5: Verkkoyhteyden katkeaminen skannauksen aikana (Virhetapaus)
+* **Vaatimus:** V6 (Virheiden hallinta)
+* **Lähtötilanne:** Sovellus on avattu selaimessa, ja DevToolsin (F12) Network-välilehdeltä on kytketty päälle **Offline**-tila.
+* **Koe:** Painetaan "Scan"-painiketta ilman verkkoyhteyttä. Sen jälkeen palautetaan verkkoyhteys ("No throttling") ja painetaan "Scan" uudelleen.
+* **Odotettu tulos:**
+  1. Sovellus ei kaadu tai jää ikuiseen lataustilaan.
+  2. Käyttöliittymään ilmestyy selkeä virheilmoitus epäonnistuneesta hausta.
+  3. Verkkoyhteyden palauttamisen jälkeen uusi skannaus onnistuu ja virheilmoitus poistuu.
+* **Havaittu tulos:**
+* *"Scan"-painikkeen painaminen offline-tilassa tuo virheilmoituksen, mutta se ei kerro yksityiskohtia vaan kehottaa käyttäjää avaamaan konsolin.*
+* *Lisäksi tekstin väri kannattaa olla punainen virhetilanteissa.*
+* *Virheen tullessa skannauksen aloittama lataus jää silti aktiiviseksi.*
+* *Ohjelma suoritti skannauksen onnistuneesti, kun verkkoyhteys palautettiin ja "Scan"-painiketta painettiin uudelleen.*
+
+Kuvat tastauksesta:
+
+
+* **Johtopäätös:** *Osittain läpäisty: virheilmoitus tulee näkyviin, mutta se ei kerro käyttäjälle mistä virheestö on kyse. Tämä ja lautuksen jumittuminen lopulta korjattu.*
+
+Kuvat korjausten jälkeen:
+
+
+---
+
+## Validointi käyttäjätarpeeseen nähden
+
+**Vastaako ratkaisu alkuperäiseen tarpeeseen?**
+Sovellus vastaa alkuperäiseen tavoitteeseen muuttaa NASA:n numeerinen asteroididata visuaaliseksi ja helposti hahmotettavaksi kojelaudaksi. Tuoreen EPIC-maapallokuvan, etäisyyden mukaan suhteutettujen valopisteiden, hover-infolaatikon ja PHA-suodattimen avulla käyttäjä saa yhdellä silmäyksellä käsityksen lähiavaruuden tilanteesta ja mahdollisista vaarallisista kohteista.
+
+**Testauksen ja validoinnin rajoitukset:**
+* Validointi perustuu omaan käyttökokeiluuni; ulkopuolisia testaajia ei käytetty, joten ensikertalaisen käyttökokemusta ei ole varmennettu ulkopuolisella arviolla.
+* Testaus tehtiin työpöytäselaimella; mobiilinäkymää tai kosketusnäytön hover-toimintaa ei testattu.
+
+**Tunnetut puutteet ja rajaukset:**
+* Asteroidien etäisyydet on skaalattu visuaalisesti ymmärrettäviksi (suhteellinen järjestys säilyy, mutta 1:1-mittakaavaa ei käytetä).
+* Maapallon EPIC-kuva ja NeoWs-asteroididata voivat olla eri päiviltä NASA:n julkaisutahdin vuoksi; tämä on ratkaistu näyttämällä molempien aikaleimat selkeästi käyttöliittymässä.
+* Historiallisten päivämäärien valintaa (kalenterihaku) ei toteutettu tämän rajauksen puitteissa.
