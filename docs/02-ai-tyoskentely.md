@@ -158,17 +158,26 @@ Vaiheen 3 syntyneen ongelman korjausksen prompti:
 4 vaiheessa tekoälyä käytettiin vain virheiden korjauksessa, jotka ilmeni neljännessä testivaiheessa.
 
 > Kävin läpi V6 testausta. Tässä huomioni:
+> 
 >
 > "Scan"-painikkeen painaminen offline-tilassa tuo virheilmoituksen, mutta se ei kerro yksityiskohtia vaan kehottaa käyttäjää avaamaan konsolin.
+> 
 > Lisäksi tekstin väri kannattaa olla punainen virhetilanteissa.
+> 
 > Virheen tullessa skannauksen aloittama lataus jää silti aktiiviseksi.
+> 
 >
 > Tee seuraavat muutokset:
 > Mainitse virheilmoituksessa aina mistä on kyse, esim. verkkoyhtyettä ei ole tai API-avaimen raja ylitetty. (Englanniksi)
+> 
 > Muuta virheilmoituksen väri punaiseksi.
+> 
 > Kun virheilmoitus tapahtu, skannausanimaation täytyy pysähtyä. Korvaa se silloin glsmorphism tyylisellä esto-merkillä, kuten tämä: 🚫
+> 
 > Älä ota siihen valkoista taustaa.
+> 
 > Laita merkin alle teksti: ERROR
+> 
 >
 > Anna kaikki päivitetyt koodit.
 
