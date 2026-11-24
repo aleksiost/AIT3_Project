@@ -1,4 +1,4 @@
-# Projektin nimi ja määrittely: Lähiavaruuden vahtikoira (Near Earth Dashboard)
+# Projektin nimi ja määrittely: Lähiavaruuden vahtikoira (Near-Space Dashboard)
 
 ## Käyttäjä, tarve ja hyöty
 
