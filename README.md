@@ -32,3 +32,5 @@ Sovellus käyttää oletuksena NASA:n julkista `DEMO_KEY`-avainta (rajoitus: 30 
 * Lue [projektin testauksesta](docs/03-testaus-ja-validointi.md).
 
 * Lue [projektin palautus.](docs/04-palautus.md).
+
+* Katso [projektissa toteutetun verkkosivun index.html.](near-space-watchdog/index.html).
